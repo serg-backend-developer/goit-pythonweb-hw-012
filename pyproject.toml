@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "goit-pythonweb-hw-08"
+name = "goit-pythonweb-hw-12"
 version = "0.1.0"
 description = ""
 authors = ["Sergey Shevchenko <sergiishevchenko017@gmail.com>"]

@@ -3,9 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.database.db import get_db
-from src.schemas.contacts import RequestEmail, Token, UserCreate, User
-from src.services.email import send_email
-from src.services.auth import create_access_token, Hash, get_email_from_token
+from src.schemas.contacts import RequestEmail, Token, UpdatePassword, UserCreate, User
+from src.services.email import send_confirm_email, send_email
+from src.services.auth import (
+    create_access_token,
+    Hash,
+    get_email_from_token,
+    get_password_from_token,
+)
 from src.services.users import UserService
 
 
@@ -103,3 +108,55 @@ async def request_email(
             send_email, user.email, user.username, request.base_url
         )
     return {"message": "Check your email for confirmation."}
+
+
+@router.post("/update_password", summary="Update password")
+async def update_password_request(
+    body: UpdatePassword,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: AsyncSession = Depends(get_db)
+):
+    user_service = UserService(db)
+    user = await user_service.get_user_by_email(body.email)
+
+    if not user:
+        return {"message": "Check your email for confirmation letter."}
+
+    if not user.is_confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email is not confirmed."
+        )
+    password = Hash().get_password_hash(body.password)
+    reset_token = await create_access_token(
+        data={"sub": user.email, "password": password}
+    )
+    background_tasks.add_task(
+        send_confirm_email,
+        to_email=body.email,
+        username=user.username,
+        host=str(request.base_url),
+        reset_token=reset_token,
+    )
+    return {"message": "Check your email for confirmation letter."}
+
+
+@router.get("/confirm_update_password/{token}", summary="Password confirmation")
+async def confirm_update_password(token: str, db: AsyncSession = Depends(get_db)):
+    email = await get_email_from_token(token)
+    password = await get_password_from_token(token)
+
+    if not email or not password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token."
+        )
+
+    user_service = UserService(db)
+    user = await user_service.get_user_by_email(email)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Incorrect email."
+        )
+    await user_service.update_password(user.id, password)
+    return {"message": "Password is updated."}

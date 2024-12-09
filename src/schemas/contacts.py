@@ -30,8 +30,8 @@ class User(BaseModel):
 
 class UserCreate(BaseModel):
     username: str
-    email: str
-    password: str
+    email: EmailStr
+    password: str = Field(min_length=4, max_length=128)
 
 
 class Token(BaseModel):
@@ -41,3 +41,8 @@ class Token(BaseModel):
 
 class RequestEmail(BaseModel):
     email: EmailStr
+
+
+class UpdatePassword(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=4, max_length=128)
