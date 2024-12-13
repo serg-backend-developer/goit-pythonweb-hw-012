@@ -22,12 +22,27 @@ conf = ConnectionConfig(
 )
 
 
-async def send_email(email: EmailStr, username: str, host: str):
+async def send_email(to_email: EmailStr, username: str, host: str) -> None:
+    """
+    Confirmation email to user.
+
+    Args:
+        to_email (EmailStr): User email
+        username (str): Username
+        host (str): Host
+
+    Returns:
+        None
+
+    Raises:
+        If there is an error sending the email.
+    """
+
     try:
-        token_verification = create_email_token({"sub": email})
+        token_verification = create_email_token({"sub": to_email})
         message = MessageSchema(
             subject="Confirm your email",
-            recipients=[email],
+            recipients=[to_email],
             template_body={
                 "host": host,
                 "username": username,
@@ -42,24 +57,32 @@ async def send_email(email: EmailStr, username: str, host: str):
         print(err)
 
 
-async def send_confirm_email(
-    to_email: EmailStr, username: str, host: str, reset_token: str
-):
+async def send_password_email(
+    to_email: EmailStr, username: str, host: str, token: str
+) -> None:
     """
-    Sending an email to confirm password reset.
+    Update password email
 
-    :param to_email: User email
-    :param username: User name
-    :param host: Server host
-    :param reset_token: Token
+    Args:
+        to_email (EmailStr): User email
+        username (str): Username
+        host (str): Host
+        token (str): Reset token
+
+    Returns:
+        None
+
+    Raises:
+        If there is an error sending the email
     """
+
     try:
-        update_link = f"{host}api/auth/confirm_update_password/{reset_token}"
+        reset_link = f"{host}api/auth/update_password/{token}"
 
         message = MessageSchema(
             subject="Important: Update your account information",
             recipients=[to_email],
-            template_body={"update_link": update_link, "username": username},
+            template_body={"reset_link": reset_link, "username": username},
             subtype=MessageType.html,
         )
 

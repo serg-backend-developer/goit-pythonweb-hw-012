@@ -1,12 +1,21 @@
 ## Goit-pythonweb-hw-012.
 
+![Coverage](https://img.shields.io/badge/CodeCoverage-85%25-brightgreen)
+
 ### Main commands
 ```
-docker compose up
+pip install poetry
 
-alembic upgrade up
+poetry install
 
-fastapi dev main.py
+poetry shell
+
+poetry add sphinx -G dev
+
+make html
+
+docker compose up --build
+
 ```
 
 ### Swagger
