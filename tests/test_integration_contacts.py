@@ -112,8 +112,7 @@ async def test_fetch_contacts_with_filters(client, monkeypatch, auth_headers):
     monkeypatch.setattr(
         "src.services.auth.get_user_from_db", mock_from_db
     )
-    contacts = [contacts[0]]
-    mock_contacts = AsyncMock(return_value=contacts)
+    mock_contacts = AsyncMock(return_value=contacts[0])
     monkeypatch.setattr(
         "src.services.contacts.ContactService.fetch_contacts", mock_contacts
     )
@@ -121,7 +120,7 @@ async def test_fetch_contacts_with_filters(client, monkeypatch, auth_headers):
         "/api/contacts/?firstname=Sergii&lastname=Shevchenko", headers=auth_headers
     )
     assert response.status_code == 200
-    assert len(response.json()) == len(contacts)
+    assert len(response.json()) == len(contacts[0])
     assert response.json()[0]["firstname"] == "Sergii"
     mock_contacts.assert_called_once_with("Sergii", "Shevchenko", "", 0, 100, account_info)
 
