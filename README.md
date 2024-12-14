@@ -1,6 +1,6 @@
 ## Goit-pythonweb-hw-012.
 
-![Coverage](https://img.shields.io/badge/CodeCoverage-85%25-brightgreen)
+![Coverage](https://img.shields.io/badge/CodeCoverage-76%25-brightgreen)
 
 ### Main commands
 ```
