@@ -24,7 +24,7 @@ async def fetch_birthdays(
     """
 
     contact_service = ContactService(db)
-    return await contact_service.fetch_upcoming_birthdays(days)
+    return await contact_service.fetch_upcoming_birthdays(days, user)
 
 
 @router.get("/", response_model=List[ContactResponseModel], summary="Get all contacts")
