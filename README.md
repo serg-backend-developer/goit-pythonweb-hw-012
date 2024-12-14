@@ -16,6 +16,8 @@ make html
 
 docker compose up --build
 
+pytest --cov=src tests/ --cov-report=html
+
 ```
 
 ### Swagger
